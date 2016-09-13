@@ -1,0 +1,302 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>interpolation1d</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-09-13"><meta name="DC.source" content="interpolation1d.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Illustration of interpolation in 1D</a></li><li><a href="#2">The interpolation expression is W(x) = \sum_i w(i) h(x-i)</a></li><li><a href="#6">What happens after smoothing</a></li></ul></div><h2>Illustration of interpolation in 1D<a name="1"></a></h2><p>Here is a discrete 1D signal</p><pre class="codeinput">addpath(<span class="string">'imageanalysistools'</span>);
+w = [1 5 3 4 1 2];
+i = 1:6;
+figure(1);
+plot(i,w,<span class="string">'*'</span>);
+axis([-3 10 0 20]);
+</pre><img vspace="5" hspace="5" src="interpolation1d_01.png" alt=""> <h2>The interpolation expression is W(x) = \sum_i w(i) h(x-i)<a name="2"></a></h2><p>Here h(x) is a small 'bump' that is scaled with w(i) and moved to position i. Let's illustrate this with a wierd interpolation function h(x)</p><pre class="codeinput">x = -5:0.05:5;
+hx = h2(x);
+figure(2);
+clf
+plot(x,hx,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,3);
+hold <span class="string">on</span>
+ii = -5:5;
+deltaii = zeros(size(ii));
+deltaii(6)=1;
+plot(ii,deltaii,<span class="string">'r*'</span>);
+</pre><img vspace="5" hspace="5" src="interpolation1d_02.png" alt=""> <pre class="codeinput">interpfun = <span class="string">'h2'</span>;
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,1} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(3); clf;
+subplot(1,2,1);
+plot(x,hx,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,3);
+axis([-3 3 0 5]);
+hold <span class="string">on</span>
+plot(ii,deltaii,<span class="string">'r*'</span>);
+subplot(1,2,2);
+plot(i,w,<span class="string">'*'</span>);
+axis([-3 10 0 20]);
+hold <span class="string">on</span>
+plot(xx,W,<span class="string">'b-'</span>);
+</pre><pre class="codeoutput error">Undefined function 'myinterpolate1d' for input arguments of type 'double'.
+
+Error in interpolation1d (line 36)
+W = myinterpolate1d(w,xx,interpfun);
+</pre><pre class="codeinput">interpfun = <span class="string">'h1'</span>;
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,2} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(4); clf;
+subplot(1,2,1);
+plot(x,hx,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,3);
+axis([-3 3 0 5]);
+hold <span class="string">on</span>
+plot(ii,deltaii,<span class="string">'r*'</span>);
+subplot(1,2,2);
+plot(i,w,<span class="string">'*'</span>);
+axis([-3 10 0 20]);
+hold <span class="string">on</span>
+plot(xx,W,<span class="string">'b-'</span>);
+
+sum(hx/20)
+</pre><pre class="codeinput">interpfun = <span class="string">'sinc'</span>;
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,3} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(5); clf;
+subplot(1,2,1);
+plot(x,hx,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,3);
+axis([-3 3 0 5]);
+hold <span class="string">on</span>
+plot(ii,deltaii,<span class="string">'r*'</span>);
+subplot(1,2,2);
+plot(i,w,<span class="string">'*'</span>);
+axis([-3 10 0 20]);
+hold <span class="string">on</span>
+plot(xx,W,<span class="string">'b-'</span>);
+</pre><h2>What happens after smoothing<a name="6"></a></h2><pre class="codeinput">mycolors = {<span class="string">'r'</span>,<span class="string">'g'</span>,<span class="string">'b'</span>}
+<span class="keyword">for</span> aa = 0.1:0.1:2;
+    xxx = -10:0.01:10;
+    ggg = 1/sqrt(2*pi*aa^2)*exp( - xxx.^2/(2*aa^2) );
+
+    figure(6);
+    clf;
+    subplot(1,2,1);
+    <span class="keyword">for</span> kk = 1:3;
+        plot(x,hx,<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,3);
+        hold <span class="string">on</span>
+    <span class="keyword">end</span>
+    axis([-3 3 0 5]);
+    plot(ii,deltaii,<span class="string">'r*'</span>);
+    subplot(1,2,2);
+    plot(i,w,<span class="string">'*'</span>);
+    axis([-3 10 0 20]);
+    hold <span class="string">on</span>
+    <span class="keyword">for</span> kk = 1:3;
+        plot(xx,conv2(Ws{kk},ggg,<span class="string">'same'</span>)/100,mycolors{kk},<span class="string">'LineWidth'</span>,3);
+        hold <span class="string">on</span>
+    <span class="keyword">end</span>
+    title(num2str(aa));
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Illustration of interpolation in 1D
+% Here is a discrete 1D signal
+
+addpath('imageanalysistools');
+w = [1 5 3 4 1 2];
+i = 1:6;
+figure(1);
+plot(i,w,'*');
+axis([-3 10 0 20]);
+
+%%
+
+%% The interpolation expression is W(x) = \sum_i w(i) h(x-i)
+% Here h(x) is a small 'bump' that is scaled with w(i) and
+% moved to position i.
+% Let's illustrate this with a wierd interpolation function
+% h(x)
+
+x = -5:0.05:5;
+hx = h2(x);
+figure(2);
+clf
+plot(x,hx,'b','LineWidth',3);
+hold on
+ii = -5:5;
+deltaii = zeros(size(ii));
+deltaii(6)=1;
+plot(ii,deltaii,'r*');
+
+
+%%
+
+interpfun = 'h2';
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,1} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(3); clf;
+subplot(1,2,1);
+plot(x,hx,'b','LineWidth',3);
+axis([-3 3 0 5]);
+hold on
+plot(ii,deltaii,'r*');
+subplot(1,2,2);
+plot(i,w,'*');
+axis([-3 10 0 20]);
+hold on
+plot(xx,W,'b-');
+
+%%
+
+interpfun = 'h1';
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,2} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(4); clf;
+subplot(1,2,1);
+plot(x,hx,'b','LineWidth',3);
+axis([-3 3 0 5]);
+hold on
+plot(ii,deltaii,'r*');
+subplot(1,2,2);
+plot(i,w,'*');
+axis([-3 10 0 20]);
+hold on
+plot(xx,W,'b-');
+
+sum(hx/20)
+
+
+%%
+
+interpfun = 'sinc';
+
+xx = -2:0.01:9;
+W = myinterpolate1d(w,xx,interpfun);
+Ws{1,3} = W;
+x = -5:0.05:5;
+hx = feval(interpfun,x);
+
+figure(5); clf;
+subplot(1,2,1);
+plot(x,hx,'b','LineWidth',3);
+axis([-3 3 0 5]);
+hold on
+plot(ii,deltaii,'r*');
+subplot(1,2,2);
+plot(i,w,'*');
+axis([-3 10 0 20]);
+hold on
+plot(xx,W,'b-');
+
+%% What happens after smoothing
+
+mycolors = {'r','g','b'}
+for aa = 0.1:0.1:2;
+    xxx = -10:0.01:10;
+    ggg = 1/sqrt(2*pi*aa^2)*exp( - xxx.^2/(2*aa^2) );
+    
+    figure(6);
+    clf;
+    subplot(1,2,1);
+    for kk = 1:3;
+        plot(x,hx,'b','LineWidth',3);
+        hold on
+    end
+    axis([-3 3 0 5]);
+    plot(ii,deltaii,'r*');
+    subplot(1,2,2);
+    plot(i,w,'*');
+    axis([-3 10 0 20]);
+    hold on
+    for kk = 1:3;
+        plot(xx,conv2(Ws{kk},ggg,'same')/100,mycolors{kk},'LineWidth',3);
+        hold on
+    end
+    title(num2str(aa));
+end
+
+
+##### SOURCE END #####
+--></body></html>
