@@ -5,11 +5,11 @@ figure(1);
 colormap(gray);
 imagesc(im);
 
-%% Generate convolution kernels 
+%% Generate convolution kernels
 
 a = 2; % level of smoothing, i.e. choice of scale in scale-space.
 N = ceil(a*4); % Since the exponential degreas fast. Taking 4*scale
-               % is good enough, we hope.
+% is good enough, we hope.
 [x,y]=meshgrid(-N:N,-N:N); % Generate grid
 
 %% First the one representing smoothing + taking derivative w r t x
@@ -56,8 +56,8 @@ colormap(gray);
 imagesc(layer2(:,:,2));
 title('The derivative of im w r t y + smoothing');
 
-%% Genarate layer 3, 
-% This usually only has one channel, i.e. 
+%% Genarate layer 3,
+% This usually only has one channel, i.e.
 %   the norm of the gradient at each pixel.
 % But you might also calculate the angle of the gradient
 %   and store this as a second channel.
@@ -75,10 +75,11 @@ colorbar
 
 %% The norm of the gradient of smoothed image
 
-figure(6);
+figure(8);
 colormap(gray);
 imagesc(layer3(:,:,1));
 title('The norm of the gradient of smoothed image');
+axis([140 160 130 150]);
 
 %% Classify gradient in 8 sectors - 8 direction bins
 
@@ -94,12 +95,144 @@ for k = 1:8;
         (layer3(imid,jmid,1) >= layer3(imid+dy(k),jmid+dx(k),1)) &  ...
         (layer3(imid,jmid,1) >= layer3(imid-dy(k),jmid-dx(k),1)) ;
 end
-
-figure(1);
+figure(9);
 colormap(gray);
 imagesc(sum(ok,3).*layer3(:,:,1))
+axis([140 160 130 150]);
 
-%% Do sub-pixel refinement. 
+
+%% Combine non-maximum supression with thresholding
+
+tmp1 = sum(ok,3)>0;
+gra = layer3(:,:,1);
+th = layer3(:,:,2);
+tmp = find(tmp1);
+figure(10);
+hist(log(gra(tmp)),-1:0.1:6)
+
+%%
+T = exp(3);
+newok = tmp1 & (gra>T);
+figure(11);
+colormap(gray);
+imagesc(newok.*gra)
+axis([140 160 130 150]);
 
 
+%% Pixel precision edgelets
+
+[y,x]=find(newok);
+tt = pi/2-th(newok);
+edgelets = [x';y';tt'];
+
+figure(12);
+colormap(gray);
+imagesc(newok.*gra)
+hold on
+plot_edgelets(edgelets,'r');
+axis([140 160 130 150]);
+
+%%
+figure(13);
+colormap(gray);
+imagesc(im)
+hold on
+plot_edgelets(edgelets,'r');
+axis([140 160 130 150]);
+
+%% Do sub-pixel refinement.
+
+edgelets_sub = edgelets;
+for k = 1:size(edgelets,2);
+    edgelets_sub(:,k)=optim_edge(im,edgelets(:,k));
+end
+
+%% Plot edglets before (red) and after (yellow) sub-pixel refinement
+
+figure(14);
+clf
+hold off
+colormap(gray);
+imagesc(im)
+hold on
+plot_edgelets(edgelets,'r');
+plot_edgelets(edgelets_sub,'y');
+title('Edglets before (red) and after (yellow) sub-pixel refinement');
+axis([140 160 130 150]);
+
+%% Connect edgelets
+% Think of each edglelet as nodes/vertices in an graph
+% and connect two of them if they are
+% * Close to each other
+% * have similar orientation
+% * the first midpoint lie on the line defined by the second edgelet
+% * and vice verca
+
+T1 = 3; % Edgelets have to be within T1 from each other
+T2 = 0.1; % Edgelets have to have an orientation difference less than T2 radians
+T3 = 0.2; % Mid point must lie closer than T3 pixels from the line defined by
+% other edglet.
+ab = [cos(edgelets_sub(3,:));sin(edgelets_sub(3,:))];
+c = -sum(ab.*edgelets_sub(1:2,:));
+l = [ab;c];
+N = size(edgelets_sub,2);
+ph = [edgelets_sub(1:2,:);ones(1,N)];
+
+I = [];
+J = [];
+for i = 1:N;
+    jtmp = find( sqrt(sum( (edgelets_sub(1:2,:)-repmat(edgelets_sub(1:2,i),1,N)).^2 ) ) < T1 );
+    ok2 =  (abs( normangle2(edgelets_sub(3,jtmp) - repmat(edgelets_sub(3,i),1,length(jtmp))) ) < T2) ...
+        & ( abs( sum(ph(:,jtmp) .* repmat(l(:,i),1,length(jtmp))) ) < T3 );
+    jj = setdiff(jtmp(find(ok2)),i);
+    I = [I repmat(i,1,length(jj))];
+    J = [J jj];
+end
+
+%% Form graph
+
+G = sparse(I,J,ones(size(I)),N,N,length(I));
+%% Find connected component in graph
+[nrcomp,compind]=graphconncomp(G);
+
+%% Plot all connected edgelet components with more than 2 elements
+oklong = zeros(size(compind));
+for k = 1:nrcomp,
+    sel = find(compind==k);
+    %length(sel)
+    if length(sel)>5;
+        oklong(sel)=ones(size(sel));
+        figure(15);
+        clf
+        hold off
+        colormap(gray);
+        imagesc(im)
+        hold on
+        plot_edgelets(edgelets_sub(:,sel),'y');
+        title(['Edglets of component: ' num2str(k) ' with ' num2str(length(sel)) ' elements.']);
+        %pause;
+    end
+end
+
+%%
+
+figure(16);
+clf
+hold off
+colormap(gray);
+imagesc(im)
+hold on
+plot_edgelets(edgelets_sub(:,find(oklong)),'y');
+title(['Edglets of components with length longer than 5 elements.']);
+
+%%
+figure(17);
+clf
+hold off
+colormap(gray);
+imagesc(im)
+hold on
+plot_edgelets(edgelets_sub(:,find(oklong)),'y');
+title(['Edglets of components with length longer than 5 elements.']);
+axis([130 170 120 160]);
 

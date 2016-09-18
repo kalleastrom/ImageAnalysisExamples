@@ -1,0 +1,73 @@
+<html>
+<head>
+  <title>Kalle Astrom, Image Analysis Examples</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<H2> Image analysis examples</H2>
+
+<body>
+
+<p>
+A collection of matlab scripts illustrating different concepts in image analysis
+The scripts are constructed for the 
+<a href="http://www.ctr.maths.lu.se/course/newimagean/2016/"> 
+basic course in image analysis.</a> at Lund University, Sweden.
+
+The examples are intended to illustrate concepts and algorithms in the course. 
+This means that most often
+the algorithms are implemented in a way that resembles the equations or the theory. 
+To get really efficient and robust algorithms, one often has to implement all kinds
+of bells and whistles.
+
+Such algorithms are often implemented in packages/modules/toolboxes for
+different programming languages, e.g.
+<ul>
+<li>  <a href="http://opencv.org"> 
+opencv for c/c++/python/java.</a>
+<li>  <a href="http://se.mathworks.com/products/image/"> 
+Image Processing Toolbox for matlab.</a>
+</ul>
+
+Suggestions and/or corrections are always appreciated. 
+All data and scripts are open source and can be found at
+<a href="http://github.com/kalleastrom/ImageAnalysisExamples"> 
+http://github.com/kalleastrom/ImageAnalysisExamples.</a>
+
+<ul>
+<li> <a href="html/gettingstartedwithimages.html"> 
+Getting started with images.</a>.
+A small example on how to load images, colors, coordinate systems. 
+<li> <a href="html/interpolation1d.html"> 
+One-dimensional interpolation example..</a> 
+<li> <a href="html/interpolation.html"> 
+Interpolating in images</a>
+<li> <a href="html/histeqdemo.html"> 
+Histogram equalization</a>
+<li> <a href="html/localmaxblobs.html"> 
+Finding blobs by smoothing followed by local maximum suppression 
+and thresholdin
+g.</a>.
+Also with sub-pixel refinement. 
+<li> <a href="html/edgeByGradient.html"> 
+Finding edges by calculating gradient magnitude and angle from 
+smoothed image.</a>.
+However, without thresholding and non-maximum supression. 
+<li> <a href="html/edgeByGradientWithNonMaximuSuppression.html"> 
+Finding edges by calculating gradient magnitude and angle from 
+smoothed image.</a>.
+This time with thresholding, non-maximum suppression, sub-pixel 
+refinement and linking edgelets together if they forme a low curvature curve. 
+<li> <a href="html/linefitting_3_ways.html"> 
+Three examples on how to fit a line to points in 2D.</a>
+First least squares, then total least squares and finally using the 
+singular value decomposition. 
+<li> <a href="html/pcaGenerateFromBasis.html"> 
+Using mean-image and eigen-images to generate synthetic images.</a> 
+<li> <a href="html/pcaDemo.html"> 
+Principal component analysis, i.e. how to calculate a mean image and a 
+low-dimensional basis that capture most of the variation in the data .</a> 
+</ul>
+
+</body>
+</html>

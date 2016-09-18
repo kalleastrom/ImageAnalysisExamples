@@ -14,6 +14,14 @@
 % Feature detection
 %  localmaxblobs   - blob-detection, first integer, then sub-pixel
 %  edgeByGradient  - edge-detetion, integer position
-%  edgeByGradientWithNonMaximuSuppression - same but with non-maximum supp
+%  edgeByGradientWithNonMaximuSuppression - same but 
+%           with thresholding, non-maximum suppression, 
+%           sub-pixel refinement and linking edgelets together.
 % Fitting
 %  linefitting_3_ways - Fit a line to points using three different methods
+% 
+% deep_learning_ocr_illustration - illustrates ocr with deep learning
+% pcaDemo - example of principle component analysis
+% pcaGenerateFromBasis - example of generating images from PCA-basis
+% pcaGenerateFromBasisInteractive - same but interactive
+% 
