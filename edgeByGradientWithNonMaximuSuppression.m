@@ -81,7 +81,10 @@ imagesc(layer3(:,:,1));
 title('The norm of the gradient of smoothed image');
 axis([140 160 130 150]);
 
-%% Classify gradient in 8 sectors - 8 direction bins
+%% Non-maximum suppression. 
+% Classify gradient in 8 sectors - 8 direction bins
+% For each bin, keep an edge point if it is local maximum in 
+% this direction. 
 
 dirbin = mod(round(layer3(:,:,2)*8/(2*pi)),8);
 dx = [0 1 1 1 0 -1 -1 -1];
@@ -101,16 +104,21 @@ imagesc(sum(ok,3).*layer3(:,:,1))
 axis([140 160 130 150]);
 
 
-%% Combine non-maximum supression with thresholding
+%% Plot histogram of log of norm of gradient. 
+% Use this to choose threshold
 
 tmp1 = sum(ok,3)>0;
 gra = layer3(:,:,1);
 th = layer3(:,:,2);
-tmp = find(tmp1);
+tmp = find( (tmp1) & (gra > exp(-5)) );
 figure(10);
-hist(log(gra(tmp)),-1:0.1:6)
+hist(log(gra(tmp)),-5:0.1:6)
+title('Histogram of log of norm of gradients')
 
-%%
+%% Combine non-maximum supression with thresholding. 
+% result is a discrete set of pixels. 
+% The edge is found to pixel precision.
+
 T = exp(3);
 newok = tmp1 & (gra>T);
 figure(11);
@@ -120,27 +128,38 @@ axis([140 160 130 150]);
 
 
 %% Pixel precision edgelets
+% At each edge point we also have an estiamate of the 
+% orientation. Each pixel can thus be thought of as 
+% a small edge-part, an edgelet. These are shown as
+% small red lines. Notice that the orientetion is 
+% quite well estimated, wheras the edge is only ok up
+% to one pixel. 
 
 [y,x]=find(newok);
 tt = pi/2-th(newok);
 edgelets = [x';y';tt'];
 
-figure(12);
+figure(12); clf;
 colormap(gray);
 imagesc(newok.*gra)
 hold on
 plot_edgelets(edgelets,'r');
 axis([140 160 130 150]);
+title('Each edge point with its direction shown as a small edgelet.');
 
-%%
-figure(13);
+%% Edgelets overlayed on original image.
+
+figure(13); clf;
 colormap(gray);
 imagesc(im)
 hold on
 plot_edgelets(edgelets,'r');
 axis([140 160 130 150]);
+title('Edgelets overlayed on original image.');
 
 %% Do sub-pixel refinement.
+% Using local optimization and interpolation
+% the edgelets can be refined to sub-pixel positions.
 
 edgelets_sub = edgelets;
 for k = 1:size(edgelets,2);
@@ -192,7 +211,9 @@ end
 %% Form graph
 
 G = sparse(I,J,ones(size(I)),N,N,length(I));
+
 %% Find connected component in graph
+
 [nrcomp,compind]=graphconncomp(G);
 
 %% Plot all connected edgelet components with more than 2 elements
@@ -214,7 +235,7 @@ for k = 1:nrcomp,
     end
 end
 
-%%
+%% Plot edgelets of components with length longer than 5 elements
 
 figure(16);
 clf
@@ -225,7 +246,8 @@ hold on
 plot_edgelets(edgelets_sub(:,find(oklong)),'y');
 title(['Edglets of components with length longer than 5 elements.']);
 
-%%
+%% Plot edgelets of components with length longer than 5 elements
+
 figure(17);
 clf
 hold off
