@@ -51,9 +51,9 @@ imseqfull1 = {imagedata(im1,K*u1),imagedata(im2,K*u2)};
 figure(1); clf;
 plot(imseqfull1{1},'numbered')
 title('Detected features image 1, before RANSAC')
-figure(4); clf;
+figure(2); clf;
 plot(imseqfull1{2},'numbered')
-title('Detected features image 2, after RANSAC')
+title('Detected features image 2, before RANSAC')
 
 
 
