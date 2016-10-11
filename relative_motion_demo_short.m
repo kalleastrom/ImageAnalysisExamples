@@ -91,7 +91,7 @@ for kk = 1:1000;
         inlid = abs(diag(u1'*E*u2)) < 0.0005;
         nrinl = sum( inlid); % Långsam kod
         if nrinl > maxnrinl,
-            blubb
+            %blubb
             bestE = E;
             maxnrinl = nrinl
             bestinlid = find(inlid);
